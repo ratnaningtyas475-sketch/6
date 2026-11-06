@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gim Edukasi IPS: Ekonomi Digital & Pembangunan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#bbf7d0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container Utama -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-3xl relative overflow-hidden">
+        
+        <!-- Layar Mulai (Start Screen) -->
+        <div id="start-screen" class="text-center fade-in">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-green-100 text-green-700 p-4 rounded-full">
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Gim Edukasi IPS Kelas 9</h1>
+            <h2 class="text-xl text-green-600 font-semibold mb-4">Perkembangan Ekonomi Digital & Tantangan Pembangunan Indonesia</h2>
+            <p class="text-gray-600 mb-8">Uji kemampuan analisismu! Jawablah pertanyaan HOTS berikut ini. Jangan khawatir jika salah, kamu tetap bisa melanjutkan ke pertanyaan berikutnya.</p>
+            
+            <div class="max-w-xs mx-auto">
+                <input type="text" id="player-name" placeholder="Masukkan Nama Lengkapmu" class="w-full px-4 py-3 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none mb-4 text-center font-semibold text-gray-700">
+                <button onclick="startGame()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md">
+                    Mulai Bermain
+                </button>
+            </div>
+        </div>
+
+        <!-- Layar Kuis (Quiz Screen) -->
+        <div id="quiz-screen" class="hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full" id="question-progress">Soal 1 / 10</span>
+                <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">Skor: <span id="current-score">0</span></span>
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 leading-relaxed" id="question-text">Teks Pertanyaan</h3>
+            </div>
+
+            <div class="space-y-3" id="options-container">
+                <!-- Tombol Opsi akan di-generate oleh JS -->
+            </div>
+
+            <div class="mt-6 text-right hidden" id="next-button-container">
+                <button onclick="nextQuestion()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                    Lanjut ke Soal Berikutnya &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- Layar Hasil (Result Screen) -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-yellow-100 text-yellow-600 p-4 rounded-full">
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Permainan Selesai!</h2>
+            <p class="text-lg text-gray-600 mb-2">Kerja bagus, <span id="display-name" class="font-bold text-green-600"></span>!</p>
+            
+            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-8 max-w-sm mx-auto">
+                <p class="text-gray-500 font-semibold mb-1">Skor Akhir Kamu</p>
+                <h3 class="text-5xl font-bold text-green-600"><span id="final-score">0</span><span class="text-2xl text-gray-400"> / <span id="max-score">100</span></span></h3>
+            </div>
+
+            <button onclick="downloadCertificate()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105 shadow-md flex items-center justify-center mx-auto gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Unduh Sertifikat
+            </button>
+            <button onclick="location.reload()" class="mt-4 text-gray-500 hover:text-gray-800 underline text-sm">
+                Main Kembali
+            </button>
+        </div>
+
+        <!-- Canvas Tersembunyi untuk Sertifikat -->
+        <canvas id="certificate-canvas" style="display: none;"></canvas>
+    </div>
+
+    <script>
+        // DATA SOAL (Saat ini berisi 10 Soal HOTS C4). 
+        // Guru dapat menambahkan hingga 100 soal dengan menduplikasi format objek di bawah ini.
+        const questions = [
+            {
+                question: "Kehadiran e-commerce mengubah pola belanja masyarakat dari pasar tradisional ke platform digital. Analisis dampak terberat dari fenomena ini terhadap struktur ekonomi lokal jika pedagang tradisional tidak melakukan adaptasi adalah...",
+                options: [
+                    "A. Meningkatnya persaingan kualitas barang antara pasar tradisional dan modern",
+                    "B. Terjadinya ketimpangan pendapatan dan matinya rantai pasok ekonomi tingkat bawah",
+                    "C. Penurunan harga barang secara drastis di seluruh platform perbelanjaan",
+                    "D. Meningkatnya daya beli masyarakat desa terhadap barang elektronik"
+                ],
+                correctAnswer: 1 // Indeks B
+            },
+            {
+                question: "Pemerintah membangun infrastruktur jaringan internet fiber optik (Palapa Ring) untuk memeratakan akses digital. Berdasarkan analisis ekonomi spasial, tantangan utama yang tetap ada agar ekonomi digital di daerah terpencil dapat berkembang meskipun internet sudah masuk adalah...",
+                options: [
+                    "A. Kurangnya literasi digital dan tidak adanya modal pemanfaatan teknologi oleh masyarakat setempat",
+                    "B. Terlalu banyaknya aplikasi e-commerce asing yang masuk ke daerah terpencil",
+                    "C. Mahalnya harga gawai pintar (smartphone) di ibukota negara",
+                    "D. Menurunnya minat generasi muda untuk menggunakan internet"
+                ],
+                correctAnswer: 0 // Indeks A
+            },
+            {
+                question: "Layanan Pinjaman Online (Pinjol) ilegal marak menjerat masyarakat berpenghasilan rendah. Secara analitis, faktor struktural utama dalam pembangunan ekonomi Indonesia yang menyebabkan masyarakat mudah terjerat fenomena ini adalah...",
+                options: [
+                    "A. Prosedur peminjaman di bank konvensional yang terlalu mudah dan cepat",
+                    "B. Kurangnya inklusi keuangan formal dan ketidakmampuan masyarakat mengakses kredit perbankan yang aman",
+                    "C. Terlalu tingginya suku bunga bank sentral yang ditetapkan pemerintah",
+                    "D. Banyaknya masyarakat yang ingin memulai usaha e-commerce skala besar"
+                ],
+                correctAnswer: 1 // Indeks B
+            },
+            {
+                question: "Indonesia diprediksi mencapai puncak bonus demografi pada 2030. Jika dikaitkan dengan digitalisasi industri (Revolusi Industri 4.0), analisis dampak terburuk yang akan terjadi apabila sistem pendidikan gagal menyesuaikan kompetensi lulusannya adalah...",
+                options: [
+                    "A. Meningkatnya ekspor barang mentah ke negara maju",
+                    "B. Pertumbuhan ekonomi yang pesat di sektor pertanian tradisional",
+                    "C. Terjadinya ledakan pengangguran terdidik karena keterampilan pekerja tidak sesuai kebutuhan industri digital",
+                    "D. Berkurangnya jumlah penduduk usia produktif secara drastis"
+                ],
+                correctAnswer: 2 // Indeks C
+            },
+            {
+                question: "Penerapan pembayaran digital (QRIS) kini meluas hingga ke pedagang kaki lima (PKL). Analisis manfaat terbesar dari sistem ini dalam konteks pembangunan makroekonomi pemerintah Indonesia adalah...",
+                options: [
+                    "A. Mendorong PKL untuk segera beralih menjadi pengusaha ritel besar",
+                    "B. Menurunkan nilai tukar Rupiah terhadap mata uang asing",
+                    "C. Membantu pemerintah mencatat transaksi sektor informal yang sebelumnya tidak terlacak (shadow economy)",
+                    "D. Mengurangi penggunaan ponsel pintar di kalangan masyarakat bawah"
+                ],
+                correctAnswer: 2 // Indeks C
+            },
+            {
+                question: "Ekonomi berbasis pekerjaan lepas (gig economy) seperti pengemudi ojek online menyerap banyak tenaga kerja. Namun, analisis kelemahan struktural dari model ekonomi ini terhadap kualitas kesejahteraan jangka panjang pekerjanya adalah...",
+                options: [
+                    "A. Pekerja mendapatkan gaji tetap bulanan yang terlalu kecil",
+                    "B. Ketiadaan jaminan sosial yang mengikat (seperti pensiun dan asuransi) karena status mereka sebagai mitra, bukan karyawan",
+                    "C. Waktu kerja yang terlalu singkat sehingga pekerja cepat bosan",
+                    "D. Kurangnya modal dari perusahaan aplikasi untuk ekspansi pasar"
+                ],
+                correctAnswer: 1 // Indeks B
+            },
+            {
+                question: "Banjirnya produk impor murah dari luar negeri di platform e-commerce sangat mengancam kelangsungan UMKM lokal. Analisis kebijakan paling tepat yang dapat diterapkan pemerintah untuk melindungi UMKM tanpa menutup akses ekonomi digital adalah...",
+                options: [
+                    "A. Memblokir seluruh aplikasi e-commerce yang beroperasi di Indonesia",
+                    "B. Menerapkan pajak e-commerce (cross-border tax) yang ketat dan memberikan subsidi pelatihan serta pemasaran digital bagi UMKM",
+                    "C. Melarang masyarakat berbelanja menggunakan uang elektronik",
+                    "D. Mewajibkan UMKM untuk mengekspor seluruh barang produksinya"
+                ],
+                correctAnswer: 1 // Indeks B
+            },
+            {
+                question: "Penggunaan teknologi pertanian cerdas (AgriTech) bertujuan memotong rantai pasok distribusi pangan agar petani untung lebih besar. Analisis hambatan sosiologis terbesar dalam penerapan teknologi ini pada petani tradisional di pedesaan adalah...",
+                options: [
+                    "A. Keengganan mengubah budaya bertani turun-temurun dan ketidakpercayaan terhadap platform digital yang dianggap rumit",
+                    "B. Tanah pertanian di pedesaan yang semakin sempit karena urbanisasi",
+                    "C. Kurangnya sinar matahari akibat perubahan iklim global",
+                    "D. Harga pupuk yang stabil di pasaran dunia"
+                ],
+                correctAnswer: 0 // Indeks A
+            },
+            {
+                question: "Perusahaan rintisan (startup) digital di Indonesia belakangan ini sering melakukan PHK massal (fenomena tech winter). Analisis penyebab utama dari fenomena ini dari sudut pandang fundamental bisnis adalah...",
+                options: [
+                    "A. Model bisnis yang terlalu bergantung pada 'bakar uang' (diskon/promo) dari dana investor tanpa mencapai keuntungan yang nyata",
+                    "B. Terlalu tingginya kualitas pekerja lokal sehingga perusahaan tidak mampu membayar gaji",
+                    "C. Adanya larangan pemerintah terhadap penggunaan internet di jam kerja",
+                    "D. Masyarakat yang tiba-tiba berhenti menggunakan teknologi digital"
+                ],
+                correctAnswer: 0 // Indeks A
+            },
+            {
+                question: "Kemajuan Kecerdasan Buatan (AI) diprediksi akan menggantikan berbagai jenis pekerjaan rutin. Analisis strategi mitigasi paling tepat bagi calon tenaga kerja Indonesia saat ini untuk menghadapi tantangan disrupsi tersebut adalah...",
+                options: [
+                    "A. Berhenti menggunakan teknologi AI dan kembali pada sistem manual",
+                    "B. Melakukan demonstrasi menolak masuknya teknologi ke Indonesia",
+                    "C. Berfokus mengembangkan keterampilan berpikir kritis, kreativitas, dan kecerdasan emosional yang tidak dapat ditiru oleh mesin (AI)",
+                    "D. Menghafal seluruh bahasa pemrograman yang ada di dunia"
+                ],
+                correctAnswer: 2 // Indeks C
+            }
+        ];
+
+        // Variabel Status Gim
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = "";
+        const pointsPerQuestion = 10; // Skor tiap soal benar
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const playerNameInput = document.getElementById('player-name');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionProgress = document.getElementById('question-progress');
+        const currentScoreEl = document.getElementById('current-score');
+        const nextBtnContainer = document.getElementById('next-button-container');
+
+        // Fungsi Memulai Gim
+        function startGame() {
+            playerName = playerNameInput.value.trim();
+            if (playerName === "") {
+                alert("Silakan masukkan nama kamu terlebih dahulu!");
+                return;
+            }
+            
+            // Inisialisasi Ulang jika main lagi
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreDisplay();
+            
+            document.getElementById('max-score').innerText = questions.length * pointsPerQuestion;
+            document.getElementById('display-name').innerText = playerName;
+
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        // Fungsi Memuat Soal
+        function loadQuestion() {
+            nextBtnContainer.classList.add('hidden');
+            const currentQ = questions[currentQuestionIndex];
+            
+            questionProgress.innerText = `Soal ${currentQuestionIndex + 1} / ${questions.length}`;
+            questionText.innerText = currentQ.question;
+            
+            optionsContainer.innerHTML = '';
+            
+            currentQ.options.forEach((opt, index) => {
+                const button = document.createElement('button');
+                button.className = "w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-400 hover:bg-green-50 transition duration-200 text-gray-700 font-medium";
+                button.innerText = opt;
+                button.onclick = () => selectOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Fungsi Memilih Jawaban
+        function selectOption(selectedIndex, selectedButton) {
+            // Nonaktifkan semua tombol setelah menjawab
+            const allButtons = optionsContainer.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-green-400', 'hover:bg-green-50');
+            });
+
+            const currentQ = questions[currentQuestionIndex];
+            
+            if (selectedIndex === currentQ.correctAnswer) {
+                // Jawaban Benar
+                selectedButton.classList.add('border-green-500', 'bg-green-100', 'text-green-800');
+                score += pointsPerQuestion;
+                updateScoreDisplay();
+            } else {
+                // Jawaban Salah
+                selectedButton.classList.add('border-red-500', 'bg-red-100', 'text-red-800');
+                // Tunjukkan jawaban yang benar
+                allButtons[currentQ.correctAnswer].classList.add('border-green-500', 'bg-green-100', 'text-green-800');
+            }
+
+            // Memunculkan tombol Lanjut sesuai request (Bisa lanjut walau salah)
+            nextBtnContainer.classList.remove('hidden');
+        }
+
+        function updateScoreDisplay() {
+            currentScoreEl.innerText = score;
+        }
+
+        // Fungsi Melanjutkan Soal
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                // Beri efek transisi sederhana
+                quizScreen.classList.remove('fade-in');
+                void quizScreen.offsetWidth; // Trigger reflow
+                quizScreen.classList.add('fade-in');
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        // Fungsi Akhir Permainan
+        function endGame() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+
+        // Fungsi Membuat dan Mengunduh Sertifikat (HTML5 Canvas)
+        function downloadCertificate() {
+            const canvas = document.getElementById('certificate-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set ukuran sertifikat
+            canvas.width = 1000;
+            canvas.height = 700;
+
+            // Background
+            ctx.fillStyle = '#f0fdf4';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Border luar
+            ctx.strokeStyle = '#166534'; // text-green-800
+            ctx.lineWidth = 15;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+            // Border dalam
+            ctx.strokeStyle = '#22c55e'; // text-green-500
+            ctx.lineWidth = 4;
+            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+
+            // Ornamen sudut (Simpel)
+            ctx.fillStyle = '#166534';
+            ctx.beginPath(); ctx.arc(40, 40, 20, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(canvas.width - 40, 40, 20, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(40, canvas.height - 40, 20, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(canvas.width - 40, canvas.height - 40, 20, 0, 2 * Math.PI); ctx.fill();
+
+            // Teks Sertifikat
+            ctx.textAlign = 'center';
+            
+            ctx.fillStyle = '#15803d';
+            ctx.font = 'bold 50px Arial';
+            ctx.fillText('SERTIFIKAT PENGHARGAAN', canvas.width / 2, 140);
+
+            ctx.fillStyle = '#4b5563';
+            ctx.font = 'italic 24px Arial';
+            ctx.fillText('Diberikan dengan bangga kepada:', canvas.width / 2, 220);
+
+            // Nama Pemain
+            ctx.fillStyle = '#111827';
+            ctx.font = 'bold 60px Arial';
+            ctx.fillText(playerName.toUpperCase(), canvas.width / 2, 320);
+            
+            // Garis Bawah Nama
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 250, 340);
+            ctx.lineTo(canvas.width / 2 + 250, 340);
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Deskripsi
+            ctx.fillStyle = '#374151';
+            ctx.font = '24px Arial';
+            ctx.fillText('Atas partisipasinya dalam menyelesaikan', canvas.width / 2, 420);
+            
+            ctx.font = 'bold 28px Arial';
+            ctx.fillStyle = '#166534';
+            ctx.fillText('Gim Edukasi IPS Kelas 9 (Kurikulum Merdeka)', canvas.width / 2, 460);
+            
+            ctx.font = '24px Arial';
+            ctx.fillStyle = '#374151';
+            ctx.fillText('Materi: Perkembangan Ekonomi Digital & Tantangan Pembangunan', canvas.width / 2, 500);
+
+            // Skor
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 30px Arial';
+            ctx.fillText(`Skor Akhir: ${score} / ${questions.length * pointsPerQuestion}`, canvas.width / 2, 580);
+
+            // Tanggal
+            const today = new Date();
+            const dateString = today.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#6b7280';
+            ctx.fillText(`Diterbitkan pada: ${dateString}`, canvas.width / 2, 640);
+
+            // Trigger Download Gambar
+            const link = document.createElement('a');
+            link.download = `Sertifikat_IPS_${playerName.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
